@@ -88,7 +88,13 @@ app.get('/api/users/:id/logs', (req, res) => {
       _id: id,
       username: data.username,
       count: data.__v,
-      log: data.log,
+      log: data.log.map((e) => {
+        return {
+          description: e.description,
+          duration: e.duration,
+          date: new Date(e.date).toDateString(),
+        };
+      }),
     });
   });
 });
