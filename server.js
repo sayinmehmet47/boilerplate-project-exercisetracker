@@ -45,13 +45,17 @@ app.post('/api/users/:id/exercises', (req, res) => {
     console.log(user);
     if (err) return console.log(err);
     // user.count = user.count + 1;
-    user.log.push({ description: description, duration: duration, date: date });
+    user.log.push({
+      description: description,
+      duration: duration,
+      date: new Date(date).toDateString(),
+    });
     user.save((err, data) => {
       if (err) return console.log(err);
       res.json({
         _id: id,
         username: data.username,
-        date: date,
+        date: new Date(date).toDateString(),
         duration: duration,
         description: description,
       });
