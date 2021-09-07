@@ -71,7 +71,7 @@ app.get('/api/users/:id/logs', (req, res) => {
       _id: id,
       username: data.username,
       count: data.__v,
-      logs: data.log,
+      log: data.log,
     });
   });
 });
