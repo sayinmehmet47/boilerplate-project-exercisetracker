@@ -9,8 +9,15 @@ mongoose.connect(process.env.MONGO_URI).then(console.log('connected'));
 
 const schema = new mongoose.Schema({
   username: String,
-  // count: Number,
-  log: [Object],
+  log: [
+    {
+      _id: String,
+      username: String,
+      date: Date,
+      duration: Number,
+      description: String,
+    },
+  ],
 });
 
 const User = mongoose.model('User', schema);
