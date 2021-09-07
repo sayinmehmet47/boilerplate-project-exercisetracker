@@ -36,7 +36,7 @@ app.post('/api/users', (req, res) => {
     if (err) return console.log(err);
     res.json({
       username: data.username,
-      id: data.id,
+      _id: data.id,
     });
   });
 });
