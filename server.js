@@ -80,8 +80,8 @@ app.post('/api/users/:id/exercises', (req, res) => {
   });
 });
 
-app.get('/api/users/:id/logs', (req, res) => {
-  const id = req.params.id;
+app.get('/api/users/:_id/logs', (req, res) => {
+  const id = req.params._id;
   User.findById(id, (err, data) => {
     if (err) return console.log(err);
     res.json({
