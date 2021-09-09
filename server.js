@@ -49,6 +49,11 @@ if (!process.env.DISABLE_XORIGIN) {
   });
 }
 
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  next();
+});
+
 app.post('/api/users', (req, res) => {
   console.log(req.body);
   const user = new User({ username: req.body.username });
