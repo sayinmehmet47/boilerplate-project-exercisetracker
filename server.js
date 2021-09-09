@@ -23,22 +23,11 @@ const schema = new mongoose.Schema({
 const User = mongoose.model('User', schema);
 
 app.use(urlencoded({ extended: false }));
-app.use(cors());
+app.use(cors({ optionsSuccessStatus: 200 }));
 app.use(express.static('public'));
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html');
 });
-
-var allowlist = ['https://freecodecamp.org', 'http://example2.com'];
-var corsOptionsDelegate = function (req, callback) {
-  var corsOptions;
-  if (allowlist.indexOf(req.header('Origin')) !== -1) {
-    corsOptions = { origin: true }; // reflect (enable) the requested origin in the CORS response
-  } else {
-    corsOptions = { origin: false }; // disable CORS for this request
-  }
-  callback(null, corsOptions); // callback expects two parameters: error and options
-};
 
 app.post('/api/users', (req, res) => {
   console.log(req.body);
@@ -52,7 +41,7 @@ app.post('/api/users', (req, res) => {
   });
 });
 
-app.get('/api/users', cors(corsOptionsDelegate), (req, res) => {
+app.get('/api/users', (req, res) => {
   User.find({}, function (err, Users) {
     if (err) return done(err);
 
@@ -91,7 +80,7 @@ app.post('/api/users/:id/exercises', (req, res) => {
   });
 });
 
-app.get('/api/users/:_id/logs', cors(corsOptionsDelegate), (req, res) => {
+app.get('/api/users/:_id/logs', (req, res) => {
   const id = req.params._id;
   User.findById(id, (err, data) => {
     if (err) return console.log(err);
