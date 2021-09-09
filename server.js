@@ -5,6 +5,13 @@ const cors = require('cors');
 const { urlencoded } = require('body-parser');
 require('dotenv').config();
 
+app.use(urlencoded({ extended: false }));
+app.use(cors());
+app.use(express.static('public'));
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/views/index.html');
+});
+
 mongoose.connect(process.env.MONGO_URI).then(console.log('connected'));
 
 const schema = new mongoose.Schema({
@@ -21,13 +28,6 @@ const schema = new mongoose.Schema({
 });
 
 const User = mongoose.model('User', schema);
-
-app.use(urlencoded({ extended: false }));
-app.use(cors());
-app.use(express.static('public'));
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/views/index.html');
-});
 
 app.post('/api/users', (req, res) => {
   console.log(req.body);
