@@ -23,7 +23,7 @@ const schema = new mongoose.Schema({
 const User = mongoose.model('User', schema);
 
 app.use(urlencoded({ extended: false }));
-app.use(cors({ optionsSuccessStatus: 200 }));
+// app.use(cors({ optionsSuccessStatus: 200 }));
 app.use(express.static('public'));
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html');
