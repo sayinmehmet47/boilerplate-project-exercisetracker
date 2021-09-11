@@ -8,27 +8,23 @@ require('dotenv').config();
 mongoose.connect(process.env.MONGO_URI).then(console.log('connected'));
 
 const schema = new mongoose.Schema({
-  username: String,
+  username: {
+    type: String,
+    required: true,
+  },
   log: [
     {
-      id:{
-        type:String,
-      },
-      username:{
-        type:String,
-        required:'username is required'
-      },
       date: {
-        type:Date,
-        default:Date.now()
+        type: Date,
+        default: Date.now(),
       },
       duration: {
-        type:String,
-       required:'duration is required'    
+        type: Number,
+        required: true,
       },
-      description:{
-        type:String,
-        required:'description is required'
+      description: {
+        type: String,
+        required: true,
       },
     },
   ],
@@ -37,42 +33,17 @@ const schema = new mongoose.Schema({
 const User = mongoose.model('User', schema);
 
 app.use(urlencoded({ extended: false }));
-// app.use(cors({ optionsSuccessStatus: 200 }));
+app.use(cors({ optionsSuccessStatus: 200 }));
 app.use(express.static('public'));
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html');
-});
-
-if (!process.env.DISABLE_XORIGIN) {
-  app.use(function (req, res, next) {
-    var allowedOrigins = [
-      'https://narrow-plane.gomix.me',
-      'https://www.freecodecamp.com',
-      'https://www.freecodecamp.org',
-    ];
-    var origin = req.headers.origin || '*';
-    if (!process.env.XORIG_RESTRICT || allowedOrigins.indexOf(origin) > -1) {
-      console.log(origin);
-      res.setHeader('Access-Control-Allow-Origin', origin);
-      res.header(
-        'Access-Control-Allow-Headers',
-        'Origin, X-Requested-With, Content-Type, Accept'
-      );
-    }
-    next();
-  });
-}
-
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  next();
 });
 
 app.post('/api/users', (req, res) => {
   console.log(req.body);
   const user = new User({ username: req.body.username });
   user.save((err, data) => {
-    if (err) return console.log(err);
+    if (err) return res.send('Path `username` is required.');
     res.json({
       username: data.username,
       _id: data.id,
@@ -90,33 +61,32 @@ app.get('/api/users', (req, res) => {
   });
 });
 
-app.pos\t('/api/users/:id/exercises', (req, res) => {
+app.post('/api/users/:id/exercises', (req, res) => {
   const id = req.params.id;
   const description = req.body.description;
   const duration = req.body.duration;
   const date = req.body.date;
-  console.log(duration);
-  console.log(id);
-  User.findById(id, (err, user) => {
-    console.log(user);
-    if (err) return console.log(err);
-    // user.count = user.count + 1;
-    user.log.push({
-      description: description,
-      duration: duration,
-      date: new Date(date).toDateString(),
-    });
-    user.save((err, data) => {
-      if (err) return console.log(err);
-      res.json({
-        _id: id,
-        username: data.username,
-        date: new Date(date).toDateString(),
-        duration: JSON.parse(duration),
-        description: description,
-      });
-    });
-  });
+  User.findByIdAndUpdate(
+    id,
+    {
+      $push: {
+        log: { date: date, duration: duration, description: description },
+      },
+    },
+    { safe: true, upsert: true, new: true },
+    function (err, data) {
+      if (err) return res.send('fddsaf');
+      if (data) {
+        return res.json({
+          _id: id,
+          username: data.username,
+          date: new Date(date).toDateString(),
+          duration: JSON.parse(duration),
+          description: description,
+        });
+      }
+    }
+  );
 });
 
 app.get('/api/users/:_id/logs', (req, res) => {
@@ -126,7 +96,7 @@ app.get('/api/users/:_id/logs', (req, res) => {
     res.json({
       _id: id,
       username: data.username,
-      count: data.__v,
+      count: data.log.length,
       log: data.log.map((e) => {
         return {
           description: e.description,
