@@ -11,11 +11,25 @@ const schema = new mongoose.Schema({
   username: String,
   log: [
     {
-      _id: String,
-      username: String,
-      date: Date,
-      duration: Number,
-      description: String,
+      id:{
+        type:String,
+      },
+      username:{
+        type:String,
+        required:'username is required'
+      },
+      date: {
+        type:Date,
+        default:Date.now()
+      },
+      duration: {
+        type:String,
+       required:'duration is required'    
+      },
+      description:{
+        type:String,
+        required:'description is required'
+      },
     },
   ],
 });
@@ -76,7 +90,7 @@ app.get('/api/users', (req, res) => {
   });
 });
 
-app.post('/api/users/:id/exercises', (req, res) => {
+app.pos\t('/api/users/:id/exercises', (req, res) => {
   const id = req.params.id;
   const description = req.body.description;
   const duration = req.body.duration;
