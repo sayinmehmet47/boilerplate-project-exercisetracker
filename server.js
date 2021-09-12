@@ -91,20 +91,62 @@ app.post('/api/users/:id/exercises', (req, res) => {
 
 app.get('/api/users/:_id/logs', (req, res) => {
   const id = req.params._id;
+  const { from, to, limit } = req.query;
   User.findById(id, (err, data) => {
     if (err) return console.log(err);
-    res.json({
-      _id: id,
-      username: data.username,
-      count: data.log.length,
-      log: data.log.map((e) => {
-        return {
-          description: e.description,
-          duration: e.duration,
-          date: new Date(e.date).toDateString(),
-        };
-      }),
-    });
+
+    if (!limit && !from && !to) {
+      console.log('limitless and fromless');
+
+      res.json({
+        _id: id,
+        username: data.username,
+        count: data.log.length,
+        log: data.log.map((e) => {
+          return {
+            description: e.description,
+            duration: e.duration,
+            date: new Date(e.date).toDateString(),
+          };
+        }),
+      });
+    }
+    if (limit) {
+      res.json({
+        _id: id,
+        username: data.username,
+        log: data.log.slice(0, limit).map((e) => {
+          return {
+            description: e.description,
+            duration: e.duration,
+            date: new Date(e.date).toDateString(),
+          };
+        }),
+      });
+    }
+    if (to && from) {
+      const toDate = new Date(to).toISOString();
+      const fromDate = new Date(from).toISOString();
+      const dateFiltered = data.log.filter((e) => {
+        const stringDate = new Date(e.date).toISOString();
+        return stringDate < toDate && stringDate > fromDate;
+      });
+
+      return res.json({
+        _id: id,
+        username: data.username,
+        from: new Date(from).toDateString(),
+        to: new Date(to).toDateString(),
+        count: dateFiltered.length,
+        log: dateFiltered.map((e) => {
+          return {
+            description: e.description,
+            duration: e.duration,
+            date: new Date(e.date).toDateString(),
+          };
+        }),
+      });
+    }
   });
 });
 
